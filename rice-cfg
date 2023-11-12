@@ -1,0 +1,48 @@
+download () {
+    pkg=$1
+    if [ -x "$(command -v apk)" ];	then sudo apk add --no-cache $pkg
+    elif [ -x "$(command -v apt-get)" ]; then sudo apt-get install $pkg
+    elif [ -x "$(command -v dnf)" ];     then sudo dnf install $pkg
+    elif [ -x "$(command -v zypper)" ];  then sudo zypper install $pkg
+    elif [ -x "$(command -v pacman)" ]; then sudo pacman -S $pkg
+    elif [ -x "$(command -v emerge)" ];     then sudo emerge --ask $pkg
+    else echo "Couldn't find proper package manager, please install $pkg manually">&2; fi
+}
+
+git_download() {
+    if [ -x "$(command -v apk)" ];      then sudo apk add --no-cache git
+    elif [ -x "$(command -v apt-get)" ]; then sudo apt-get install git
+    elif [ -x "$(command -v dnf)" ];     then sudo dnf install git
+    elif [ -x "$(command -v zypper)" ];  then sudo zypper install git
+    elif [ -x "$(command -v pacman)" ]; then sudo pacman -S git
+    elif [ -x "$(command -v emerge)" ];     then sudo emerge --ask dev-vcs/git
+    else echo "Couldn't find proper package manager, please install git manually">&2; fi
+
+}
+
+
+
+
+
+
+echo "Creating directories..."
+cp -r Themes ~/Themes
+#mkdir -p ~/.local/bin
+
+echo "Downloading git..."
+git_download
+clear
+echo "Searching for zsh..."
+
+if test "$0" = "/usr/bin/zsh"
+then
+    echo "Detected zsh, skipping zsh installation..."
+else
+    echo "zsh not found, installing..."
+    pkg='zsh'
+    download $pkg
+fi
+
+echo "Installing oh-my-zsh, please pick Yes (Y) on next question..."
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+ 

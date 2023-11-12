@@ -1,0 +1,33 @@
+#!/bin/sh
+
+#file
+
+r_wall=$(find ~/Themes/ -type f -name "*.jpg" -o -name "*.png" | shuf -n 1)
+
+wall=${1:-$r_wall}
+
+
+
+#wallpaper
+qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript '
+    var allDesktops = desktops();
+    for (i=0;i<allDesktops.length;i++) 
+    {
+        d = allDesktops[i];
+        d.wallpaperPlugin = "org.kde.image";
+        d.currentConfigGroup = Array("Wallpaper", "org.kde.image", "General");
+        d.writeConfig("Image", "file:///'"$wall"'")
+    }
+'
+
+#color scheme
+
+wal -c
+wal -i $wall
+
+xdotool key super+F5
+
+#notifications
+filename=$(basename -- "$wall")
+filename="${filename%.*}"
+notify-send -a Theme-design "Changed Theme to \"$filename\""

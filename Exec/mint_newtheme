@@ -1,0 +1,26 @@
+#!/bin/sh
+
+#file
+
+r_wall=$(find ~/Themes/ -type f -name "*.jpg" -o -name "*.png" | shuf -n 1)
+
+wall=${1:-$r_wall}
+
+
+
+#wallpaper
+
+ gsettings set org.cinnamon.desktop.background picture-uri  "file:///$wall"
+
+
+#color scheme
+
+wal -c
+wal -i $wall
+
+xdotool key super+F5
+
+#notifications
+filename=$(basename -- "$wall")
+filename="${filename%.*}"
+notify-send -a Theme-design "Changed Theme to \"$filename\""

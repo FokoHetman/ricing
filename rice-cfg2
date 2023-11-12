@@ -1,0 +1,102 @@
+download () {
+    pkg=$1
+    if [ -x "$(command -v apk)" ];	then sudo apk add --no-cache $pkg
+    elif [ -x "$(command -v apt-get)" ]; then sudo apt-get install $pkg
+    elif [ -x "$(command -v dnf)" ];     then sudo dnf install $pkg
+    elif [ -x "$(command -v zypper)" ];  then sudo zypper install $pkg
+    elif [ -x "$(command -v pacman)" ]; then sudo pacman -S $pkg
+    elif [ -x "$(command -v emerge)" ];     then sudo emerge --ask $pkg
+    else echo "Couldn't find proper package manager, please install $pkg manually">&2; fi
+}
+
+downloadPip () {
+    if [ -x "$(command -v apk)" ];      then sudo apk add --no-cache python3-pip
+    elif [ -x "$(command -v apt-get)" ]; then sudo apt-get install python3-pip
+    elif [ -x "$(command -v dnf)" ];     then sudo dnf install python3-pip
+    elif [ -x "$(command -v zypper)" ];  then sudo zypper install python3-pip
+    elif [ -x "$(command -v pacman)" ]; then sudo pacman -S python3-pip
+    elif [ -x "$(command -v emerge)" ];     then sudo emerge --ask dev-python/pip
+    else echo "Couldn't find proper package manager, please install $pkg manually">&2; fi
+}
+
+cat ~/.zshrc | sed -e "s/robbyrussell/alanpeabody/" > temp_zshrc
+
+cat temp_zshrc
+
+correct='n'
+read -p "Is that .zshrc configuration correct (Y/n): " correct
+if test correct = 'n'
+then
+    echo "Leaving script.."
+    exit 0
+elif test correct = 'N'
+then
+    echo "Leaving script.."
+    exit 0
+fi
+
+mv temp_zshrc ~/.zshrc
+clear
+
+echo "Installing xdotool"
+download 'xdotool'
+
+#pause
+
+clear
+
+echo "Installing python-pywal"
+downloadPip
+
+pip3 install pywal
+
+sudo mv ~/.local/bin/wal /usr/bin
+
+clear
+
+echo "Installing imagemagick"
+download 'imagemagick'
+#pause
+clear
+
+echo "All installations done. Configuring path & scripts..."
+
+echo "Searching for display manager..."
+
+displaymgr=$(grep 'ExecStart=' /etc/systemd/system/display-manager.service)
+
+echo "Found display manager: "
+echo $displaymgr
+if test "$displaymgr" = "ExecStart=/usr/bin/sddm"
+then
+    echo "Using installation process for sddm..."
+    sudo cp Exec/sddm_newtheme /usr/bin/newtheme
+
+elif test "$displaymgr" = "ExecStart=/usr/bin/mdm"
+then
+    echo "Using instalalation process for mdm (Mint display manager)..."
+    sudo cp Exec/mint_newtheme /usr/bin/newtheme
+
+else
+    echo "Your display manager is not currently supported, trying with KDE Plasma/sddm installation...."
+    sudo cp Exec/sddm_newtheme /usr/bin/newtheme
+fi
+
+
+echo "Downloading zsh-syntax-highlighting..."
+download 'zsh-syntax-highlighting'
+
+gen0=$(cat gen_file0)
+gen1=$(cat gen_file1)
+
+echo $gen0 >> ~/.zshrc
+echo $gen1 >> ~/.zshrc
+
+
+clear
+
+sudo chmod +x /usr/bin/newtheme
+echo "Installation done!"
+echo "To add new themes, add .jpg and .png files to ~/Themes directory."
+echo "To change themes, use newtheme command"
+zsh
