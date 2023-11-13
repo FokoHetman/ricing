@@ -41,7 +41,7 @@ clear
 echo "Installing xdotool"
 download 'xdotool'
 
-#pause
+sleep 5
 
 clear
 
@@ -51,12 +51,13 @@ downloadPip
 pip3 install pywal
 
 sudo mv ~/.local/bin/wal /usr/bin
-
+sleep 5
 clear
 
 echo "Installing imagemagick"
 download 'imagemagick'
-#pause
+
+sleep 5
 clear
 
 echo "All installations done. Configuring path & scripts..."
